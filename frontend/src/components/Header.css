@@ -1,0 +1,47 @@
+.app-header {
+  height: 64px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  border-bottom: 1px solid #ccc;
+  background: #fff;
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-header__logo-mark {
+  width: 28px;
+  height: 28px;
+  border: 2px solid #222;
+  border-radius: 6px;
+}
+
+.app-header__logo-text {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.app-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  font-size: 14px;
+  color: #444;
+}
+
+.app-header__nav-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.app-header__nav-link--active {
+  font-weight: 700;
+  color: #111;
+}
