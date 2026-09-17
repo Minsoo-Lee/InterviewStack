@@ -1,9 +1,9 @@
-# ==== Java / Maven (backend) ====
-target/
+# ==== Java / Gradle (backend) ====
+build/
+.gradle/
 *.class
 *.jar
-!.mvn/wrapper/maven-wrapper.jar
-.mvn/wrapper/maven-wrapper.properties.bak
+!gradle/wrapper/gradle-wrapper.jar
 
 # ==== Node (frontend) ====
 node_modules/

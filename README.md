@@ -34,9 +34,9 @@ InterviewStack/
 # 1. 인프라(PostgreSQL + pgvector) 기동
 docker compose up -d
 
-# 2. 백엔드 실행 (Java 21, Maven 3.9+ 필요)
+# 2. 백엔드 실행 (Java 21, Gradle 8.5+ 필요 — 현재 Gradle Wrapper 미포함, 로컬에 Gradle 설치 필요)
 cd backend
-mvn spring-boot:run
+gradle bootRun
 
 # 3. 프론트 실행
 cd frontend
