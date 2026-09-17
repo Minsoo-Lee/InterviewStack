@@ -1,0 +1,517 @@
+openapi: 3.0.3
+info:
+  title: InterviewStack API
+  description: |
+    AI·백엔드 엔지니어 인터뷰 준비 서비스 InterviewStack의 REST API 명세.
+    CSR(React/Vite) 프론트와의 계약을 구현보다 먼저 정의한다는 원칙에 따라 작성됨.
+    인증이 필요한 엔드포인트는 `Authorization: Bearer <JWT>` 헤더를 요구한다.
+  version: "0.1.0"
+servers:
+  - url: http://localhost:8080
+    description: 로컬 개발 서버
+
+tags:
+  - name: auth
+    description: 회원가입 / 로그인 (JWT 발급)
+  - name: questions
+    description: 질문은행 조회 및 답변 제출/첨삭
+  - name: interviews
+    description: AI 모의면접 세션
+  - name: dashboard
+    description: 취약 카테고리 · 오답노트 대시보드
+
+paths:
+  /api/auth/signup:
+    post:
+      tags: [auth]
+      summary: 회원가입
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+      responses:
+        '201':
+          description: 가입 성공, JWT 발급
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '409':
+          description: 이미 가입된 이메일
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/login:
+    post:
+      tags: [auth]
+      summary: 로그인
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: 로그인 성공, JWT 발급
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: 이메일 또는 비밀번호 불일치
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/questions:
+    get:
+      tags: [questions]
+      summary: 질문 목록 조회 (카테고리·세부주제·난이도 필터)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: category
+          in: query
+          schema:
+            $ref: '#/components/schemas/Category'
+        - name: subTopic
+          in: query
+          schema:
+            type: string
+          example: 동시성
+        - name: difficulty
+          in: query
+          schema:
+            $ref: '#/components/schemas/Difficulty'
+      responses:
+        '200':
+          description: 질문 목록
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Question'
+
+  /api/questions/{id}:
+    get:
+      tags: [questions]
+      summary: 질문 상세 조회
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/QuestionId'
+      responses:
+        '200':
+          description: 질문 상세
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+        '404':
+          description: 존재하지 않는 질문
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/questions/{id}/answers:
+    post:
+      tags: [questions]
+      summary: 답변 제출 → 첨삭 결과(Feedback) 반환
+      description: |
+        제출된 답변을 저장하고, 첨삭 루브릭 v1 기반 LLM 채점(첨삭 프롬프트 v1)을 동기 호출하여
+        그 결과를 함께 반환한다. LLM 응답 지연 시 프론트는 로딩 상태를 표시한다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/QuestionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitAnswerRequest'
+      responses:
+        '201':
+          description: 답변 저장 및 첨삭 완료
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerWithFeedback'
+
+  /api/interviews:
+    post:
+      tags: [interviews]
+      summary: AI 모의면접 세션 시작
+      description: 이력서/JD 텍스트를 기반으로 첫 질문을 생성하고 세션을 시작한다.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartInterviewRequest'
+      responses:
+        '201':
+          description: 세션 시작, 첫 AI 질문 메시지 포함
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterviewSession'
+
+  /api/interviews/{id}:
+    get:
+      tags: [interviews]
+      summary: 모의면접 세션 상세 조회 (진행 상황 · 대화 이력)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/InterviewId'
+      responses:
+        '200':
+          description: 세션 상세
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterviewSessionDetail'
+
+  /api/interviews/{id}/messages:
+    post:
+      tags: [interviews]
+      summary: 답변 전송 → 꼬리질문(또는 다음 질문) 생성
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/InterviewId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+      responses:
+        '201':
+          description: 사용자 메시지 저장 및 AI 응답 메시지 반환
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterviewMessage'
+
+  /api/interviews/{id}/end:
+    post:
+      tags: [interviews]
+      summary: 세션 종료 및 종합 리포트 생성
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/InterviewId'
+      responses:
+        '200':
+          description: 세션 종료, 종합 리포트 반환
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterviewSessionDetail'
+
+  /api/dashboard:
+    get:
+      tags: [dashboard]
+      summary: 취약 카테고리 · 오답노트 대시보드
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 대시보드 요약
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummary'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    QuestionId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    InterviewId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    Category:
+      type: string
+      enum: [CS 기초, 백엔드 심화, AI/ML, 인성/직무]
+
+    Difficulty:
+      type: string
+      enum: [하, 중, 상]
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: string
+
+    SignupRequest:
+      type: object
+      required: [email, password, name]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 8
+        name:
+          type: string
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        user:
+          $ref: '#/components/schemas/UserSummary'
+
+    UserSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        name:
+          type: string
+
+    Question:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        category:
+          $ref: '#/components/schemas/Category'
+        subTopic:
+          type: string
+        difficulty:
+          $ref: '#/components/schemas/Difficulty'
+        content:
+          type: string
+
+    SubmitAnswerRequest:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+
+    Answer:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        questionId:
+          type: string
+          format: uuid
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    Feedback:
+      type: object
+      description: 첨삭 루브릭 v1 기반 채점 결과 (총 40점 만점, 4개 세부 항목)
+      properties:
+        id:
+          type: string
+          format: uuid
+        rubricVersion:
+          type: string
+          example: v1
+        scores:
+          type: object
+          description: |
+            기술 질문: 정확성/구조화/실무연결성/커뮤니케이션.
+            인성/직무 질문: 구체성/STAR구조/자기인식/커뮤니케이션.
+            각 항목 0~10점.
+          additionalProperties:
+            type: integer
+            minimum: 0
+            maximum: 10
+          example:
+            정확성: 8
+            구조화: 7
+            실무연결성: 6
+            커뮤니케이션: 8
+        total:
+          type: integer
+          minimum: 0
+          maximum: 40
+        summary:
+          type: string
+        references:
+          type: array
+          description: RAG(pgvector) 검색으로 인용한 근거자료
+          items:
+            $ref: '#/components/schemas/ReferenceDocument'
+        isWeak:
+          type: boolean
+          description: 오답노트(취약 카테고리) 대상 여부
+
+    ReferenceDocument:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        sourceUrl:
+          type: string
+          format: uri
+          nullable: true
+
+    AnswerWithFeedback:
+      type: object
+      properties:
+        answer:
+          $ref: '#/components/schemas/Answer'
+        feedback:
+          $ref: '#/components/schemas/Feedback'
+
+    StartInterviewRequest:
+      type: object
+      properties:
+        resumeText:
+          type: string
+          nullable: true
+        jdText:
+          type: string
+          nullable: true
+
+    InterviewMessage:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        role:
+          type: string
+          enum: [ai, user]
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    InterviewSession:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [in_progress, completed]
+        startedAt:
+          type: string
+          format: date-time
+        firstMessage:
+          $ref: '#/components/schemas/InterviewMessage'
+
+    InterviewSessionDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [in_progress, completed]
+        startedAt:
+          type: string
+          format: date-time
+        endedAt:
+          type: string
+          format: date-time
+          nullable: true
+        topicsCovered:
+          type: array
+          items:
+            type: string
+          example: [자기소개, 프로젝트 경험, 동시성, 협업]
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/InterviewMessage'
+        report:
+          type: string
+          nullable: true
+          description: 세션 종료 후 생성되는 종합 리포트 (종료 전에는 null)
+
+    SendMessageRequest:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+
+    DashboardSummary:
+      type: object
+      properties:
+        weakCategories:
+          type: array
+          description: 카테고리별 평균 점수가 낮은 순
+          items:
+            type: object
+            properties:
+              category:
+                $ref: '#/components/schemas/Category'
+              averageScore:
+                type: number
+                format: float
+              answeredCount:
+                type: integer
+        wrongAnswerNotes:
+          type: array
+          description: isWeak=true로 채점된 최근 답변 목록
+          items:
+            $ref: '#/components/schemas/AnswerWithFeedback'
