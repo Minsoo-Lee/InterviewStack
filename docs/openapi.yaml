@@ -146,6 +146,33 @@ paths:
               schema:
                 $ref: '#/components/schemas/AnswerWithFeedback'
 
+  /api/answers/{id}:
+    get:
+      tags: [questions]
+      summary: 답변 + 첨삭 결과 조회 (첨삭 결과 화면 새로고침/재방문 대응)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 답변 및 첨삭 결과
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerWithFeedback'
+        '404':
+          description: 존재하지 않는 답변
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /api/interviews:
     post:
       tags: [interviews]
