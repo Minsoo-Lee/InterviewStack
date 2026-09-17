@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: interviewstack
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/interviewstack
+    username: interviewstack
+    password: interviewstack
+
+  jpa:
+    hibernate:
+      ddl-auto: validate # 스키마는 Flyway가 관리
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+
+interviewstack:
+  jwt:
+    # 로컬 개발용 기본값. 운영 배포 시 반드시 환경변수(JWT_SECRET)로 덮어쓸 것.
+    secret: ${JWT_SECRET:local-dev-only-secret-key-change-me-please-32bytes+}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000} # 24시간
+
+logging:
+  level:
+    com.interviewstack: DEBUG
