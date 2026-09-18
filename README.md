@@ -13,7 +13,7 @@ AI·백엔드 엔지니어 취업/이직 준비생을 위한, 도메인 특화 �
 
 | 영역 | 기술 |
 |---|---|
-| 백엔드 | Java 21, Spring Boot, Spring Security, Spring AI (Gemini API) |
+| 백엔드 | Java 21, Spring Boot 4.0, Spring Security, Spring AI 2.0 (Gemini API) |
 | 데이터 | PostgreSQL, pgvector |
 | 프론트 | React (Vite), TypeScript, CSR SPA |
 | 인프라 | Docker Compose (로컬 개발) |
@@ -34,15 +34,23 @@ InterviewStack/
 # 1. 인프라(PostgreSQL + pgvector) 기동
 docker compose up -d
 
-# 2. 백엔드 실행 (Java 21, Gradle 8.5+ 필요 — 현재 Gradle Wrapper 미포함, 로컬에 Gradle 설치 필요)
+# 2. 백엔드 실행 (Java 21)
 cd backend
-gradle bootRun
+export GEMINI_API_KEY=발급받은-Gemini-API-키   # 답변 첨삭(LLM 채점)·RAG 근거자료 검색에 필요
+./gradlew bootRun
 
 # 3. 프론트 실행
 cd frontend
 npm install
 npm run dev
 ```
+
+> **GEMINI_API_KEY 없이 실행하면?** 서버는 정상 기동되고 회원가입/로그인/질문 목록 조회는 그대로 동작하지만,
+> 답변 제출(`POST /api/questions/{id}/answers`) 시 LLM 채점이 실패해 502(`GRADING_FAILED`)가 반환된다.
+> RAG 근거자료 검색은 실패해도 빈 배열로 안전하게 대체되어 채점 자체를 막지 않는다.
+
+> **Boot 3.3.5 → 4.0.0**: Spring AI 2.0.x(AIAgent/RagPipeline 참고 프로젝트와 동일 라인)가 Boot 4.0/4.1만
+> 지원해서 백엔드 전체를 Boot 4.0.0으로 올렸다 (2026-09-18).
 
 ## 문서
 
