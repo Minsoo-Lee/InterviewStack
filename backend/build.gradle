@@ -1,7 +1,7 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.5'
-    id 'io.spring.dependency-management' version '1.1.6'
+    id 'org.springframework.boot' version '4.0.0'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.interviewstack'
@@ -29,15 +29,22 @@ ext {
 }
 
 dependencies {
+    // Spring AI - AIAgent/RagPipeline 참고 프로젝트와 동일 라인(2.0.0)으로 고정.
+    // Spring AI 2.0.x가 Boot 4.0/4.1만 지원해서 Boot를 3.3.5→4.0.0으로 올렸음 (2026-09-18 결정).
+    implementation platform('org.springframework.ai:spring-ai-bom:2.0.0')
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+    // Spring AI - Google GenAI (Gemini) Chat / Embedding
+    implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
+    implementation 'org.springframework.ai:spring-ai-starter-model-google-genai-embedding'
+
     // DB / 마이그레이션
     runtimeOnly 'org.postgresql:postgresql'
-    implementation 'org.flywaydb:flyway-core'
-    implementation 'org.flywaydb:flyway-database-postgresql'
+    implementation 'org.springframework.boot:spring-boot-starter-flyway'
 
     // JWT
     implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
