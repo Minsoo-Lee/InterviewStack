@@ -1,6 +1,6 @@
 package com.interviewstack.auth.dto;
 
-import com.interviewstack.entity.User;
+import com.interviewstack.domain.user.User;
 
 import java.util.UUID;
 
