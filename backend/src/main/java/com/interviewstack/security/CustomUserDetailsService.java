@@ -1,7 +1,7 @@
 package com.interviewstack.security;
 
-import com.interviewstack.domain.user.User;
-import com.interviewstack.domain.user.UserRepository;
+import com.interviewstack.entity.user.User;
+import com.interviewstack.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

@@ -1,11 +1,13 @@
 package com.interviewstack.auth;
 
+import com.interviewstack.exception.EmailAlreadyExistsException;
+
 import com.interviewstack.auth.dto.AuthResponse;
 import com.interviewstack.auth.dto.LoginRequest;
 import com.interviewstack.auth.dto.SignupRequest;
 import com.interviewstack.auth.dto.UserSummary;
-import com.interviewstack.domain.user.User;
-import com.interviewstack.domain.user.UserRepository;
+import com.interviewstack.entity.user.User;
+import com.interviewstack.repository.user.UserRepository;
 import com.interviewstack.security.JwtService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

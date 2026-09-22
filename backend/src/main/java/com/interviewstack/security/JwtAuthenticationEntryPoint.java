@@ -1,7 +1,7 @@
 package com.interviewstack.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.interviewstack.common.ErrorResponse;
+import com.interviewstack.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
