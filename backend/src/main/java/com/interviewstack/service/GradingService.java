@@ -1,8 +1,8 @@
-package com.interviewstack.service.grading;
+package com.interviewstack.service;
 
 import com.interviewstack.exception.GradingFailedException;
 
-import com.interviewstack.entity.question.Question;
+import com.interviewstack.entity.Question;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;

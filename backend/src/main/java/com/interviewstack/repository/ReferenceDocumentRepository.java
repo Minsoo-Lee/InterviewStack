@@ -1,6 +1,6 @@
-package com.interviewstack.repository.referencedocument;
+package com.interviewstack.repository;
 
-import com.interviewstack.entity.referencedocument.ReferenceDocument;
+import com.interviewstack.entity.ReferenceDocument;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

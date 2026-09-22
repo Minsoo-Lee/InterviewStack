@@ -1,14 +1,14 @@
-package com.interviewstack.service.dashboard;
+package com.interviewstack.service;
 
 import com.interviewstack.dto.dashboard.DashboardCategorySummaryResponse;
 import com.interviewstack.dto.dashboard.DashboardSummaryResponse;
-import com.interviewstack.repository.feedback.CategoryScoreAggregate;
-import com.interviewstack.entity.feedback.Feedback;
-import com.interviewstack.repository.feedback.FeedbackRepository;
-import com.interviewstack.entity.referencedocument.ReferenceDocument;
-import com.interviewstack.repository.referencedocument.ReferenceDocumentRepository;
-import com.interviewstack.entity.user.User;
-import com.interviewstack.repository.user.UserRepository;
+import com.interviewstack.repository.CategoryScoreAggregate;
+import com.interviewstack.entity.Feedback;
+import com.interviewstack.repository.FeedbackRepository;
+import com.interviewstack.entity.ReferenceDocument;
+import com.interviewstack.repository.ReferenceDocumentRepository;
+import com.interviewstack.entity.User;
+import com.interviewstack.repository.UserRepository;
 import com.interviewstack.dto.answer.AnswerWithFeedbackResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

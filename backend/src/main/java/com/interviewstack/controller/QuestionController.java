@@ -1,9 +1,9 @@
-package com.interviewstack.controller.question;
+package com.interviewstack.controller;
 
-import com.interviewstack.service.answer.AnswerService;
+import com.interviewstack.service.AnswerService;
 import com.interviewstack.exception.QuestionNotFoundException;
 
-import com.interviewstack.repository.question.QuestionRepository;
+import com.interviewstack.repository.QuestionRepository;
 import com.interviewstack.dto.answer.AnswerWithFeedbackResponse;
 import com.interviewstack.dto.question.QuestionResponse;
 import com.interviewstack.dto.answer.SubmitAnswerRequest;

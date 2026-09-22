@@ -1,6 +1,6 @@
-package com.interviewstack.repository.feedback;
+package com.interviewstack.repository;
 
-import com.interviewstack.entity.feedback.Feedback;
+import com.interviewstack.entity.Feedback;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

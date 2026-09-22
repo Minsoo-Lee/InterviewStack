@@ -1,4 +1,4 @@
-package com.interviewstack.service.grading;
+package com.interviewstack.service;
 
 import java.util.Map;
 

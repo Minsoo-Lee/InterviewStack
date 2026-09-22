@@ -1,6 +1,5 @@
-package com.interviewstack.entity.feedback;
+package com.interviewstack.entity;
 
-import com.interviewstack.entity.answer.Answer;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

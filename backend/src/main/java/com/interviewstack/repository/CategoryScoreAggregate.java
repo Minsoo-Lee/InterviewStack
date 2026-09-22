@@ -1,4 +1,4 @@
-package com.interviewstack.repository.feedback;
+package com.interviewstack.repository;
 
 /**
  * FeedbackRepository#aggregateByCategory 결과 프로젝션.

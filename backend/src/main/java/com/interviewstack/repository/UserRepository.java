@@ -1,6 +1,6 @@
-package com.interviewstack.repository.user;
+package com.interviewstack.repository;
 
-import com.interviewstack.entity.user.User;
+import com.interviewstack.entity.User;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

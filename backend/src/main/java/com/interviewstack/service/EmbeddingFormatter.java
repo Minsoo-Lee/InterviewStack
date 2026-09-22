@@ -1,4 +1,4 @@
-package com.interviewstack.service.rag;
+package com.interviewstack.service;
 
 /**
  * Spring AI EmbeddingModel#embed(String)이 반환하는 float[]를

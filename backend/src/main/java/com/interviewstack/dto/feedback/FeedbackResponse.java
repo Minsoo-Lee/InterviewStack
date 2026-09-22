@@ -2,8 +2,8 @@ package com.interviewstack.dto.feedback;
 
 import com.interviewstack.dto.referencedocument.ReferenceDocumentResponse;
 
-import com.interviewstack.entity.feedback.Feedback;
-import com.interviewstack.entity.referencedocument.ReferenceDocument;
+import com.interviewstack.entity.Feedback;
+import com.interviewstack.entity.ReferenceDocument;
 
 import java.util.List;
 import java.util.Map;

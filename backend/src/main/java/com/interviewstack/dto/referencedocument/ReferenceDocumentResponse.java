@@ -1,6 +1,6 @@
 package com.interviewstack.dto.referencedocument;
 
-import com.interviewstack.entity.referencedocument.ReferenceDocument;
+import com.interviewstack.entity.ReferenceDocument;
 
 import java.util.UUID;
 

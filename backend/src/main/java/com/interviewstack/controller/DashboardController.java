@@ -1,6 +1,6 @@
-package com.interviewstack.controller.dashboard;
+package com.interviewstack.controller;
 
-import com.interviewstack.service.dashboard.DashboardService;
+import com.interviewstack.service.DashboardService;
 
 import com.interviewstack.dto.dashboard.DashboardSummaryResponse;
 import lombok.RequiredArgsConstructor;

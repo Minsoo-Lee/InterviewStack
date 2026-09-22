@@ -1,6 +1,6 @@
 package com.interviewstack.dto.answer;
 
-import com.interviewstack.entity.answer.Answer;
+import com.interviewstack.entity.Answer;
 
 import java.time.Instant;
 import java.util.UUID;

@@ -1,6 +1,6 @@
-package com.interviewstack.controller.answer;
+package com.interviewstack.controller;
 
-import com.interviewstack.service.answer.AnswerService;
+import com.interviewstack.service.AnswerService;
 
 import com.interviewstack.dto.answer.AnswerWithFeedbackResponse;
 import lombok.RequiredArgsConstructor;

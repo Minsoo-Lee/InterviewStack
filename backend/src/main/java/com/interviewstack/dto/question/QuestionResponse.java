@@ -1,6 +1,6 @@
 package com.interviewstack.dto.question;
 
-import com.interviewstack.entity.question.Question;
+import com.interviewstack.entity.Question;
 
 import java.util.UUID;
 

@@ -1,6 +1,6 @@
-package com.interviewstack.repository.question;
+package com.interviewstack.repository;
 
-import com.interviewstack.entity.question.Question;
+import com.interviewstack.entity.Question;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

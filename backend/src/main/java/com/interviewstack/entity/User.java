@@ -1,4 +1,4 @@
-package com.interviewstack.entity.user;
+package com.interviewstack.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

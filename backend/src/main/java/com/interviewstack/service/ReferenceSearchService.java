@@ -1,8 +1,8 @@
-package com.interviewstack.service.rag;
+package com.interviewstack.service;
 
-import com.interviewstack.entity.question.Question;
-import com.interviewstack.entity.referencedocument.ReferenceDocument;
-import com.interviewstack.repository.referencedocument.ReferenceDocumentRepository;
+import com.interviewstack.entity.Question;
+import com.interviewstack.entity.ReferenceDocument;
+import com.interviewstack.repository.ReferenceDocumentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.embedding.EmbeddingModel;

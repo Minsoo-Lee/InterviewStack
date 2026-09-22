@@ -1,22 +1,19 @@
-package com.interviewstack.service.answer;
+package com.interviewstack.service;
 
 import com.interviewstack.exception.AnswerNotFoundException;
 import com.interviewstack.exception.QuestionNotFoundException;
 
-import com.interviewstack.entity.answer.Answer;
-import com.interviewstack.repository.answer.AnswerRepository;
-import com.interviewstack.entity.feedback.Feedback;
-import com.interviewstack.repository.feedback.FeedbackRepository;
-import com.interviewstack.entity.question.Question;
-import com.interviewstack.repository.question.QuestionRepository;
-import com.interviewstack.entity.referencedocument.ReferenceDocument;
-import com.interviewstack.repository.referencedocument.ReferenceDocumentRepository;
-import com.interviewstack.entity.user.User;
-import com.interviewstack.repository.user.UserRepository;
-import com.interviewstack.service.grading.GradingResult;
-import com.interviewstack.service.grading.GradingService;
+import com.interviewstack.entity.Answer;
+import com.interviewstack.repository.AnswerRepository;
+import com.interviewstack.entity.Feedback;
+import com.interviewstack.repository.FeedbackRepository;
+import com.interviewstack.entity.Question;
+import com.interviewstack.repository.QuestionRepository;
+import com.interviewstack.entity.ReferenceDocument;
+import com.interviewstack.repository.ReferenceDocumentRepository;
+import com.interviewstack.entity.User;
+import com.interviewstack.repository.UserRepository;
 import com.interviewstack.dto.answer.AnswerWithFeedbackResponse;
-import com.interviewstack.service.rag.ReferenceSearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

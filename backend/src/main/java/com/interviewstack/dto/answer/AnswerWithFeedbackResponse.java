@@ -2,9 +2,9 @@ package com.interviewstack.dto.answer;
 
 import com.interviewstack.dto.feedback.FeedbackResponse;
 
-import com.interviewstack.entity.answer.Answer;
-import com.interviewstack.entity.feedback.Feedback;
-import com.interviewstack.entity.referencedocument.ReferenceDocument;
+import com.interviewstack.entity.Answer;
+import com.interviewstack.entity.Feedback;
+import com.interviewstack.entity.ReferenceDocument;
 
 import java.util.List;
 
