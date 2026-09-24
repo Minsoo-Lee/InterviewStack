@@ -26,6 +26,9 @@ repositories {
 
 ext {
     jjwtVersion = '0.12.6'
+    // Boot 4.0.0이 관리하는 기본 Flyway 버전이 최신 PostgreSQL 16.x 패치 버전을 몰라서
+    // "Unsupported Database: PostgreSQL 16.14" 에러가 났음 — 최신 버전으로 직접 고정.
+    set('flyway.version', '13.7.0')
 }
 
 dependencies {
@@ -45,6 +48,9 @@ dependencies {
     // DB / 마이그레이션
     runtimeOnly 'org.postgresql:postgresql'
     implementation 'org.springframework.boot:spring-boot-starter-flyway'
+    // Boot 4부터는 flyway-database-postgresql을 명시적으로 추가해야 PostgreSQL을 인식함
+    // (spring-boot-starter-flyway만으로는 부족 — 없으면 "Unsupported Database" 에러 발생)
+    implementation 'org.flywaydb:flyway-database-postgresql'
 
     // JWT
     implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
