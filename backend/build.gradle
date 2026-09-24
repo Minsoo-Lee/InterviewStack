@@ -51,6 +51,11 @@ dependencies {
     runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
     runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
 
+    // 로컬 개발 편의용: backend/.env를 자동으로 읽어서 환경변수로 주입해줌
+    // (개발 전용이라 developmentOnly로 선언 — 운영 빌드(bootJar)에는 포함 안 됨)
+    implementation platform('me.paulschwarz:spring-dotenv-bom:5.1.0')
+    developmentOnly 'me.paulschwarz:springboot4-dotenv'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
