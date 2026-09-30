@@ -31,8 +31,15 @@ public class ReferenceDocumentEmbeddingRunner implements ApplicationRunner {
     @Value("${spring.ai.google.genai.api-key:}")
     private String geminiApiKey;
 
+    @Value("${interviewstack.ai.mock-mode:false}")
+    private boolean mockMode;
+
     @Override
     public void run(ApplicationArguments args) {
+        if (mockMode) {
+            log.info("AI_MOCK_MODE 활성화 - reference_documents 임베딩 계산을 건너뜁니다 (RAG 근거자료는 항상 빈 목록으로 응답).");
+            return;
+        }
         if (geminiApiKey == null || geminiApiKey.isBlank()) {
             log.info("GEMINI_API_KEY가 설정되지 않아 reference_documents 임베딩 계산을 건너뜁니다.");
             return;

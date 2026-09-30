@@ -6,8 +6,11 @@ import com.interviewstack.domain.question.Question;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -41,9 +44,21 @@ public class GradingService {
 
     private static final int MAX_ATTEMPTS = 2;
 
+    // TECH_RUBRIC/PERSONALITY_RUBRIC 문구에 등장하는 항목명과 동일한 순서·표기로 맞춘 모의 채점용 축.
+    private static final String[] TECH_AXES = {"정확성", "구조화", "실무 연결성", "커뮤니케이션"};
+    private static final String[] PERSONALITY_AXES = {"구체성", "구조화(STAR)", "자기인식", "커뮤니케이션"};
+
     private final ChatClient.Builder chatClientBuilder;
 
+    @Value("${interviewstack.ai.mock-mode:false}")
+    private boolean mockMode;
+
     public GradingResult grade(Question question, String userAnswer) {
+        if (mockMode) {
+            log.info("AI_MOCK_MODE 활성화 - 실제 Gemini 호출 없이 모의 채점 결과를 반환합니다.");
+            return buildMockResult(question, userAnswer);
+        }
+
         String prompt = buildPrompt(question, userAnswer);
 
         RuntimeException lastError = null;
@@ -63,6 +78,30 @@ public class GradingService {
             }
         }
         throw new GradingFailedException("LLM 채점에 실패했습니다.", lastError);
+    }
+
+    /**
+     * AI_MOCK_MODE=true일 때 실제 Gemini 호출 없이 돌려주는 가짜 채점 결과.
+     * 답변 길이에 따라 점수를 살짝 다르게 줘서(너무 짧으면 낮게) 화면 테스트 시 밋밋해 보이지 않게 한다.
+     * summary 앞에 [모의 채점 모드] 표시를 붙여 실제 첨삭과 혼동되지 않도록 한다.
+     */
+    private GradingResult buildMockResult(Question question, String userAnswer) {
+        boolean isTech = TECH_CATEGORIES.contains(question.getCategory());
+        String[] axes = isTech ? TECH_AXES : PERSONALITY_AXES;
+        int base = userAnswer.trim().length() < 30 ? 5 : 7;
+
+        Map<String, Integer> scores = new LinkedHashMap<>();
+        for (int i = 0; i < axes.length; i++) {
+            // 항목마다 -1~+1 정도 흔들어서 총점이 매번 똑같지 않게 한다.
+            int score = Math.max(0, Math.min(10, base + (i % 3) - 1));
+            scores.put(axes[i], score);
+        }
+
+        String summary = "[모의 채점 모드] 실제 Gemini 호출 없이 생성된 가짜 첨삭입니다. "
+                + "앱 흐름(제출→첨삭 화면→대시보드 반영) 테스트용으로만 참고하고, "
+                + "실제 첨삭 품질 확인은 AI_MOCK_MODE를 끈 뒤 진행하세요.";
+
+        return new GradingResult(scores, summary);
     }
 
     private String buildPrompt(Question question, String userAnswer) {

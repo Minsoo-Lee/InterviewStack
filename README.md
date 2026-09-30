@@ -49,6 +49,14 @@ npm run dev
 > 답변 제출(`POST /api/questions/{id}/answers`) 시 LLM 채점이 실패해 502(`GRADING_FAILED`)가 반환된다.
 > RAG 근거자료 검색은 실패해도 빈 배열로 안전하게 대체되어 채점 자체를 막지 않는다.
 
+> **Gemini API 없이(또는 결제/쿼터 문제로) 앱 흐름만 테스트하려면**: `AI_MOCK_MODE=true`로 백엔드를 띄우면
+> 실제 Gemini 호출 없이 미리 정해둔 가짜 채점 결과를 돌려준다(비용 발생 없음). RAG 근거자료는 항상 빈 목록으로
+> 응답한다. 응답의 `summary`가 `[모의 채점 모드]`로 시작하므로 실제 첨삭과 혼동되지 않는다.
+> ```bash
+> export AI_MOCK_MODE=true
+> ./gradlew bootRun
+> ```
+
 > **Boot 3.3.5 → 4.0.0**: Spring AI 2.0.x(AIAgent/RagPipeline 참고 프로젝트와 동일 라인)가 Boot 4.0/4.1만
 > 지원해서 백엔드 전체를 Boot 4.0.0으로 올렸다 (2026-09-18).
 

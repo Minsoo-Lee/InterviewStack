@@ -35,7 +35,15 @@ public class ReferenceSearchService {
     @Value("${interviewstack.rag.max-distance:0.4}")
     private double maxDistance;
 
+    @Value("${interviewstack.ai.mock-mode:false}")
+    private boolean mockMode;
+
     public List<ReferenceDocument> search(Question question, String userAnswer) {
+        if (mockMode) {
+            // 모의 채점 모드에서는 임베딩 자체를 계산하지 않으므로(ReferenceDocumentEmbeddingRunner도 건너뜀)
+            // 실제 호출을 시도할 필요 없이 바로 빈 목록으로 응답한다.
+            return List.of();
+        }
         try {
             float[] embedding = embeddingModel.embed(question.getContent() + "\n" + userAnswer);
             String literal = EmbeddingFormatter.toVectorLiteral(embedding);

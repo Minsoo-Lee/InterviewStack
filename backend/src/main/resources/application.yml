@@ -40,6 +40,11 @@ server:
   port: 8080
 
 interviewstack:
+  ai:
+    # Gemini API 결제/쿼터 문제 등으로 실제 LLM 호출 없이 앱 흐름(질문 제출→첨삭 화면 전환→대시보드 반영)만
+    # 테스트하고 싶을 때 true로. true면 GradingService/ReferenceSearchService/ReferenceDocumentEmbeddingRunner가
+    # 실제 Gemini 호출을 건너뛰고 미리 정해둔 가짜 결과를 돌려준다 (비용 발생 없음, 실제 채점 품질은 검증 불가).
+    mock-mode: ${AI_MOCK_MODE:false}
   jwt:
     # 로컬 개발용 기본값. 운영 배포 시 반드시 환경변수(JWT_SECRET)로 덮어쓸 것.
     secret: ${JWT_SECRET:local-dev-only-secret-key-change-me-please-32bytes+}
