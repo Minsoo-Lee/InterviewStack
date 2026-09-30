@@ -46,6 +46,15 @@ a {
   font-size: 13px;
 }
 
+.page__error {
+  color: #a33;
+  font-size: 13px;
+}
+
+.page--narrow {
+  max-width: 360px;
+}
+
 .page__tag {
   font-size: 11px;
   letter-spacing: 0.06em;
@@ -60,7 +69,8 @@ a {
 }
 
 .answer-textarea,
-.page textarea {
+.page textarea,
+.page input {
   width: 100%;
   border: 1px solid #b3b3b3;
   border-radius: 4px;
@@ -68,6 +78,48 @@ a {
   font-size: 13px;
   font-family: inherit;
   resize: vertical;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+}
+
+.auth-form__field-hint {
+  font-size: 11px;
+  font-weight: 400;
+  color: #999;
+}
+
+.profile-card {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile-card__name {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.profile-card__email {
+  font-size: 13px;
+  color: #777;
+  margin: 0;
 }
 
 .page button {

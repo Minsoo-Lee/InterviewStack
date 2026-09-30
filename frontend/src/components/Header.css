@@ -45,3 +45,8 @@
   font-weight: 700;
   color: #111;
 }
+
+.app-header__user {
+  font-size: 13px;
+  color: #666;
+}
