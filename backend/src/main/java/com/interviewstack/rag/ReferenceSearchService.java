@@ -54,7 +54,8 @@ public class ReferenceSearchService {
                     .filter(Objects::nonNull)
                     .toList();
         } catch (Exception e) {
-            log.warn("RAG 근거자료 검색 실패, 빈 목록으로 대체합니다: {}", e.getMessage());
+            // GradingService와 같은 이유로 e.getMessage()만 남기지 않고 전체 스택 트레이스를 남긴다.
+            log.warn("RAG 근거자료 검색 실패, 빈 목록으로 대체합니다", e);
             return List.of();
         }
     }

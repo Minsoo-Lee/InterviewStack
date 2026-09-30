@@ -17,7 +17,7 @@ import java.util.List;
  * Gemini 임베딩 모델로 벡터를 계산하고 채워 넣는다 (V2 시드 데이터 대응).
  *
  * GEMINI_API_KEY가 설정되지 않은 로컬 환경(예: 최초 클론 직후, CI)에서는
- * 조용히 건너뛴다 — RAG 근거자료가 비어 있을 뿐 나머지 기능(질문/답변/채점)은
+ * 조용히 건너뛴다 - RAG 근거자료는 있을 뿐 나머지 기능(질문/답변/채점)은
  * 정상 동작해야 하므로, 여기서 예외를 던져 앱 기동을 막지 않는다.
  */
 @Slf4j
@@ -51,7 +51,9 @@ public class ReferenceDocumentEmbeddingRunner implements ApplicationRunner {
                 referenceDocumentRepository.updateEmbedding(doc.getId(), EmbeddingFormatter.toVectorLiteral(embedding));
                 success++;
             } catch (Exception e) {
-                log.warn("reference_documents(id={}) 임베딩 계산 실패: {}", doc.getId(), e.getMessage());
+                // 다른 Gemini 호출부(GradingService, ReferenceSearchService)와 동일하게
+                // 전체 스택 트레이스를 남겨서 원인 파악이 되도록 한다.
+                log.warn("reference_documents(id={}) 임베딩 계산 실패", doc.getId(), e);
             }
         }
         log.info("reference_documents 임베딩 계산 완료 ({}/{}건 성공)", success, pending.size());

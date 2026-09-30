@@ -56,7 +56,10 @@ public class GradingService {
                         .entity(GradingResult.class);
             } catch (RuntimeException e) {
                 lastError = e;
-                log.warn("LLM 채점 실패 (시도 {}/{}): {}", attempt, MAX_ATTEMPTS, e.getMessage());
+                // e.getMessage()만 찍으면 "Failed to generate content" 같은 뭉뚱그린 래퍼 메시지만 남고
+                // 실제 원인(예: Gemini 402/쿼터 초과 등)은 getCause()에 숨어있는 경우가 많아서,
+                // 마지막 인자로 예외 자체를 넘겨 전체 스택 트레이스(Caused by 체인 포함)를 남긴다.
+                log.warn("LLM 채점 실패 (시도 {}/{})", attempt, MAX_ATTEMPTS, e);
             }
         }
         throw new GradingFailedException("LLM 채점에 실패했습니다.", lastError);
