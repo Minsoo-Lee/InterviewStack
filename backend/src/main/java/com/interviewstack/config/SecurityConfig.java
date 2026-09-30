@@ -57,9 +57,9 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        // 로컬 개발: Vite 기본 포트(5173)에서의 요청을 허용. 배포 시 실제 프론트 도메인으로 교체.
+        // 로컬 개발: Vite 포트(5174 — 홈 서버에서 5173이 이미 사용 중이라 변경)에서의 요청을 허용. 배포 시 실제 프론트 도메인으로 교체.
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedOrigins(List.of("http://localhost:5174"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
