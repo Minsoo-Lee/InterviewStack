@@ -58,9 +58,10 @@ public class ReferenceDocumentEmbeddingRunner implements ApplicationRunner {
                 referenceDocumentRepository.updateEmbedding(doc.getId(), EmbeddingFormatter.toVectorLiteral(embedding));
                 success++;
             } catch (Exception e) {
-                // 다른 Gemini 호출부(GradingService, ReferenceSearchService)와 동일하게
-                // 전체 스택 트레이스를 남겨서 원인 파악이 되도록 한다.
-                log.warn("reference_documents(id={}) 임베딩 계산 실패", doc.getId(), e);
+                // GradingService와 달리, 여기서 던져지는 com.google.genai.errors.ClientException은
+                // 래핑 없이 그 자체가 실제 원인(예: "402 . Your prepayment credits are depleted...")을
+                // getMessage()에 담고 있으므로, 전체 스택 트레이스 대신 한 줄만 남겨도 원인 파악에 충분하다.
+                log.warn("reference_documents(id={}) 임베딩 계산 실패: {}", doc.getId(), e.getMessage());
             }
         }
         log.info("reference_documents 임베딩 계산 완료 ({}/{}건 성공)", success, pending.size());
