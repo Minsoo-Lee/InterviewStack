@@ -1,3 +1,14 @@
+# 전체 스택(DB + 백엔드 + 프론트)을 하나의 compose로 관리한다.
+# 소스는 전부 바인드 마운트라 코드를 고치면 컨테이너 안에서 바로 반영된다(핫 리로드):
+#   - backend: gradlew bootRun --continuous (+ DevTools)가 변경 감지 시 재컴파일/재시작
+#   - frontend: Vite dev server가 저장 즉시 브라우저에 반영
+#
+# 전체 실행:        docker compose up -d
+# DB+백엔드만 실행:  docker compose up -d postgres backend
+# 프론트만 실행:     docker compose up -d frontend
+# 로그 보기:        docker compose logs -f backend  (frontend/postgres도 동일)
+# 종료:             docker compose down
+
 services:
   postgres:
     image: pgvector/pgvector:pg16
@@ -17,5 +28,43 @@ services:
       timeout: 5s
       retries: 10
 
+  backend:
+    image: eclipse-temurin:21-jdk
+    container_name: interviewstack-backend
+    restart: unless-stopped
+    working_dir: /app
+    # --continuous: 소스 변경을 감지해 자동 재컴파일(Gradle). DevTools가 그 위에서 빠른 재시작을 담당.
+    # -x test: 코드 고칠 때마다 테스트까지 돌면 재시작이 너무 느려져서 bootRun 경로에서는 테스트 생략.
+    command: sh -c "chmod +x gradlew && ./gradlew bootRun --continuous --no-daemon -x test"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend:/app
+      # Gradle이 받는 의존성/배포판을 컨테이너 재시작 사이에도 캐싱해서 기동 속도를 올려준다.
+      - backend-gradle-cache:/root/.gradle
+
+  frontend:
+    image: node:22-alpine
+    container_name: interviewstack-frontend
+    restart: unless-stopped
+    working_dir: /app
+    # --host 0.0.0.0: 컨테이너 밖(호스트)에서 접속 가능하게 모든 인터페이스에서 리슨.
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5174:5174"
+    volumes:
+      - ./frontend:/app
+      # node_modules는 호스트와 분리된 익명 볼륨에 둬서, 호스트에 이미 설치된 node_modules(다른 OS/arch에서
+      # 빌드됐을 수 있음)와 충돌하지 않고 컨테이너 안에서 매번 깨끗하게 npm install 한다.
+      - frontend-node-modules:/app/node_modules
+
 volumes:
   docker-volumes:
+  backend-gradle-cache:
+  frontend-node-modules:

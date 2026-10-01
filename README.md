@@ -16,7 +16,7 @@ AI·백엔드 엔지니어 취업/이직 준비생을 위한, 도메인 특화 �
 | 백엔드 | Java 21, Spring Boot 4.0, Spring Security, Spring AI 2.0 (Groq + 로컬 ONNX 임베딩) |
 | 데이터 | PostgreSQL, pgvector |
 | 프론트 | React (Vite), TypeScript, CSR SPA |
-| 인프라 | Docker Compose (로컬 개발) |
+| 인프라 | Docker Compose (DB + 백엔드 + 프론트 전체 핫 리로드 개발 환경) |
 
 ## 프로젝트 구조
 
@@ -30,20 +30,38 @@ InterviewStack/
 
 ## 로컬 개발 환경 실행
 
+DB · 백엔드 · 프론트 전부 Docker Compose로 띄운다. 소스는 컨테이너에 바인드 마운트되어 있어서
+코드를 고치면 컨테이너를 다시 빌드/재시작할 필요 없이 바로 반영된다(핫 리로드) — 백엔드는 Gradle
+`--continuous` + DevTools가, 프론트는 Vite dev server가 변경을 감지해 자동으로 재시작/리프레시한다.
+
 ```bash
-# 1. 인프라(PostgreSQL + pgvector) 기동
+# 0. (최초 1회) backend/.env에 GROQ_API_KEY 설정 — 답변 첨삭(LLM 채점)에 필요
+#    console.groq.com에서 발급, 카드 등록 불필요. backend/.env.example 참고
+cp backend/.env.example backend/.env   # 없다면 직접 만들고 GROQ_API_KEY=... 한 줄 추가
+
+# 1. 전체 스택(DB + 백엔드 + 프론트) 기동
 docker compose up -d
 
-# 2. 백엔드 실행 (Java 21)
-cd backend
-export GROQ_API_KEY=발급받은-Groq-API-키        # 답변 첨삭(LLM 채점)에 필요 — console.groq.com, 카드 등록 불필요
-./gradlew bootRun
+# 로그 확인 (각각 따로)
+docker compose logs -f backend
+docker compose logs -f frontend
 
-# 3. 프론트 실행
-cd frontend
-npm install
-npm run dev
+# 종료
+docker compose down
 ```
+
+프론트: http://localhost:5174, 백엔드: http://localhost:8080, DB: localhost:5432
+
+필요하면 그룹만 골라서 띄울 수도 있다:
+
+```bash
+docker compose up -d postgres backend   # DB + 백엔드만
+docker compose up -d frontend           # 프론트만
+```
+
+> **Docker 없이 로컬에서 직접 돌리고 싶다면**: `docker compose up -d postgres`로 DB만 띄운 뒤,
+> `cd backend && ./gradlew bootRun`, `cd frontend && npm install && npm run dev`를 각각 실행해도 된다
+> (기존 방식 그대로 동작함 — `application.yml`의 DB 접속 주소가 기본값(localhost)을 쓰기 때문).
 
 > **왜 채점은 Groq, 임베딩은 로컬?** 2026-10-01부터 LLM 채점(`GradingService`)은 [Groq](https://console.groq.com)로
 > 옮겼다 — 카드 등록 없이 가입 가능하고 무료 한도(분당 30회/일 1,000회)가 넉넉해서, 기존 Gemini 결제/쿼터(402)
@@ -62,13 +80,10 @@ npm run dev
 > **GROQ_API_KEY 없이 실행하면?** 서버는 정상 기동되고 회원가입/로그인/질문 목록 조회는 그대로 동작하지만,
 > 답변 제출(`POST /api/questions/{id}/answers`) 시 LLM 채점이 실패해 502(`GRADING_FAILED`)가 반환된다.
 
-> **Groq 없이(또는 쿼터 문제로) 앱 흐름만 테스트하려면**: `AI_MOCK_MODE=true`로 백엔드를 띄우면
-> 실제 Groq 호출 없이 미리 정해둔 가짜 채점 결과를 돌려준다(비용 발생 없음). RAG 근거자료는 항상 빈 목록으로
-> 응답한다. 응답의 `summary`가 `[모의 채점 모드]`로 시작하므로 실제 첨삭과 혼동되지 않는다.
-> ```bash
-> export AI_MOCK_MODE=true
-> ./gradlew bootRun
-> ```
+> **Groq 없이(또는 쿼터 문제로) 앱 흐름만 테스트하려면**: 실제 Groq 호출 없이 미리 정해둔 가짜 채점 결과를
+> 돌려준다(비용 발생 없음). RAG 근거자료는 항상 빈 목록으로 응답한다. 응답의 `summary`가 `[모의 채점 모드]`로
+> 시작하므로 실제 첨삭과 혼동되지 않는다. `backend/.env`에 `AI_MOCK_MODE=true`를 추가하고
+> `docker compose restart backend`(비도커 실행 시엔 `export AI_MOCK_MODE=true && ./gradlew bootRun`).
 
 > **Boot 3.3.5 → 4.0.0**: Spring AI 2.0.x(AIAgent/RagPipeline 참고 프로젝트와 동일 라인)가 Boot 4.0/4.1만
 > 지원해서 백엔드 전체를 Boot 4.0.0으로 올렸다 (2026-09-18).

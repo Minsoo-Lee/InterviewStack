@@ -64,6 +64,12 @@ dependencies {
     implementation platform('me.paulschwarz:spring-dotenv-bom:5.1.0')
     developmentOnly 'me.paulschwarz:springboot4-dotenv'
 
+    // 도커 핫 리로드용: docker-compose의 backend 컨테이너가 `gradlew bootRun --continuous`로
+    // 뜨는데, --continuous는 소스 변경 감지 시 재컴파일만 해줄 뿐이라 DevTools 없이도 재시작은 되지만,
+    // DevTools를 추가하면 더 빠르고 매끄러운 재시작(클래스로더 재사용)을 해준다. developmentOnly라
+    // 운영 빌드에는 포함 안 됨.
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
