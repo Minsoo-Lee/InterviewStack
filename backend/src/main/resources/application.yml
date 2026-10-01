@@ -20,20 +20,14 @@ spring:
     locations: classpath:db/migration
 
   ai:
-    google:
-      genai:
-        # 로컬에 GEMINI_API_KEY가 없어도 앱은 정상 기동되도록 기본값은 빈 문자열로 둔다.
-        # 채점(Chat)은 2026-10-01부터 Groq로 옮겨서 더 이상 이 키를 안 쓰고, 여기 api-key는
-        # ReferenceDocumentEmbeddingRunner가 "키가 설정됐는지" 판단할 때만 참조한다
-        # (임베딩 모델 자체는 바로 아래 embedding.api-key를 따로 읽음. 둘 다 같은 GEMINI_API_KEY).
-        # 없으면 ReferenceSearchService가 빈 참고자료 목록으로 안전하게 처리한다.
-        api-key: ${GEMINI_API_KEY:}
-        embedding:
-          api-key: ${GEMINI_API_KEY:}
-          text:
-            options:
-              model: gemini-embedding-001
-              dimensions: 768
+    # 임베딩(RAG 근거자료 검색)은 2026-10-01부터 외부 API(Gemini) 대신 로컬 ONNX 모델로 계산한다.
+    # 외부 호출이 전혀 없어서 가입/카드/쿼터/결제 문제가 원천적으로 없다 — 애플리케이션 안에서 직접
+    # 계산(all-MiniLM-L6-v2, 384차원). 첫 실행 시 모델(~80MB)을 Hugging Face에서 내려받아
+    # ${java.io.tmpdir}/spring-ai-onnx-model에 캐싱하므로, 최초 1회는 기동이 느리고 인터넷 연결이 필요하다.
+    # 주의: 이 모델은 영어 위주로 학습돼 있어 한국어 질문/답변 간 유사도 품질은 제한적일 수 있다
+    # (틀린 건 아니고, 더 정확한 한국어 임베딩이 필요해지면 다국어 ONNX 모델로 교체 고려).
+    model:
+      embedding: transformers
     openai:
       # Groq: 카드 등록 없이 가입 가능한 무료 LLM 추론 서비스. OpenAI 호환 엔드포인트를 제공해서
       # Spring AI의 OpenAI 모듈을 그대로 쓰되 base-url만 Groq로 바꿔서 연결한다.

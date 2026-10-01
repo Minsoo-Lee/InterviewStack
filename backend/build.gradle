@@ -41,10 +41,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-    // Spring AI - 채점(Chat)은 Groq(무료, OpenAI 호환 엔드포인트)로, 임베딩(RAG)은 Google GenAI(Gemini)로 분리.
-    // Gemini 결제/쿼터(402) 문제로 채점이 막히는 걸 피하려고 2026-10-01에 채점만 Groq로 옮김.
+    // Spring AI - 채점(Chat)은 Groq(무료, OpenAI 호환 엔드포인트)로, 임베딩(RAG)은 로컬 ONNX 모델로 분리.
+    // 둘 다 2026-10-01에 Gemini 결제/쿼터(402) 문제를 피하려고 옮김 - 임베딩은 외부 API 호출 자체가
+    // 없어서 가입/카드/쿼터/결제 문제가 원천적으로 발생하지 않음.
     implementation 'org.springframework.ai:spring-ai-starter-model-openai'
-    implementation 'org.springframework.ai:spring-ai-starter-model-google-genai-embedding'
+    implementation 'org.springframework.ai:spring-ai-starter-model-transformers'
 
     // DB / 마이그레이션
     runtimeOnly 'org.postgresql:postgresql'

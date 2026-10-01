@@ -13,7 +13,7 @@ AI·백엔드 엔지니어 취업/이직 준비생을 위한, 도메인 특화 �
 
 | 영역 | 기술 |
 |---|---|
-| 백엔드 | Java 21, Spring Boot 4.0, Spring Security, Spring AI 2.0 (Gemini API) |
+| 백엔드 | Java 21, Spring Boot 4.0, Spring Security, Spring AI 2.0 (Groq + 로컬 ONNX 임베딩) |
 | 데이터 | PostgreSQL, pgvector |
 | 프론트 | React (Vite), TypeScript, CSR SPA |
 | 인프라 | Docker Compose (로컬 개발) |
@@ -37,7 +37,6 @@ docker compose up -d
 # 2. 백엔드 실행 (Java 21)
 cd backend
 export GROQ_API_KEY=발급받은-Groq-API-키        # 답변 첨삭(LLM 채점)에 필요 — console.groq.com, 카드 등록 불필요
-export GEMINI_API_KEY=발급받은-Gemini-API-키   # RAG 근거자료 검색(임베딩)에 필요
 ./gradlew bootRun
 
 # 3. 프론트 실행
@@ -46,17 +45,25 @@ npm install
 npm run dev
 ```
 
-> **왜 채점은 Groq, 임베딩은 Gemini?** 2026-10-01부터 LLM 채점(`GradingService`)만 [Groq](https://console.groq.com)로
-> 옮겼다 — 카드 등록 없이 가입 가능하고 무료 한도(분당 30회/일 1,000회)가 넉넉해서, Gemini 결제/쿼터(402) 문제의
-> 영향을 안 받는다. RAG 근거자료 검색에 쓰는 임베딩 모델은 Groq가 제공하지 않아 계속 Gemini를 쓴다.
+> **왜 채점은 Groq, 임베딩은 로컬?** 2026-10-01부터 LLM 채점(`GradingService`)은 [Groq](https://console.groq.com)로
+> 옮겼다 — 카드 등록 없이 가입 가능하고 무료 한도(분당 30회/일 1,000회)가 넉넉해서, 기존 Gemini 결제/쿼터(402)
+> 문제의 영향을 안 받는다. RAG 근거자료 검색에 쓰는 임베딩은 Groq가 제공하지 않고, 대신 Spring AI의 로컬 ONNX
+> 모델(`all-MiniLM-L6-v2`, 384차원)로 전환해서 외부 API 호출 자체를 없앴다 — 가입/카드/쿼터/결제 문제가
+> 원천적으로 발생하지 않는다. 별도 API 키나 환경변수 설정이 필요 없고, 첫 실행 시 모델(~80MB)을 Hugging Face에서
+> 내려받아 캐싱하므로 최초 1회만 기동이 느리고 인터넷 연결이 필요하다.
+>
+> **주의 1 (영어 위주 모델)**: `all-MiniLM-L6-v2`는 영어 중심으로 학습된 모델이라 한국어 질문/답변 간 유사도
+> 품질은 제한적일 수 있다. 틀린 건 아니고, 더 정확한 한국어 임베딩이 필요해지면 다국어 ONNX 모델로 교체를 고려할 것.
+>
+> **주의 2 (기동 실패 가능성)**: Spring AI 공식 문서에 따르면 이 로컬 모델은 "fail fast" 방식이라, 모델
+> 다운로드/로드에 실패하면(예: 최초 실행 시 인터넷 연결 불가) RAG 기능뿐 아니라 애플리케이션 전체가 기동되지
+> 않는다 — graceful degradation 없음. 로컬 개발 환경에서는 인터넷 연결만 확인되면 문제 없다.
 >
 > **GROQ_API_KEY 없이 실행하면?** 서버는 정상 기동되고 회원가입/로그인/질문 목록 조회는 그대로 동작하지만,
 > 답변 제출(`POST /api/questions/{id}/answers`) 시 LLM 채점이 실패해 502(`GRADING_FAILED`)가 반환된다.
->
-> **GEMINI_API_KEY 없이 실행하면?** RAG 근거자료 검색은 실패해도 빈 배열로 안전하게 대체되어 채점 자체를 막지 않는다.
 
-> **Groq/Gemini 없이(또는 쿼터 문제로) 앱 흐름만 테스트하려면**: `AI_MOCK_MODE=true`로 백엔드를 띄우면
-> 실제 Groq/Gemini 호출 없이 미리 정해둔 가짜 채점 결과를 돌려준다(비용 발생 없음). RAG 근거자료는 항상 빈 목록으로
+> **Groq 없이(또는 쿼터 문제로) 앱 흐름만 테스트하려면**: `AI_MOCK_MODE=true`로 백엔드를 띄우면
+> 실제 Groq 호출 없이 미리 정해둔 가짜 채점 결과를 돌려준다(비용 발생 없음). RAG 근거자료는 항상 빈 목록으로
 > 응답한다. 응답의 `summary`가 `[모의 채점 모드]`로 시작하므로 실제 첨삭과 혼동되지 않는다.
 > ```bash
 > export AI_MOCK_MODE=true

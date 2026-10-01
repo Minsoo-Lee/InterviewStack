@@ -14,11 +14,11 @@ import java.util.List;
 
 /**
  * 앱 기동 시 embedding이 아직 계산되지 않은 reference_documents 행을 찾아
- * Gemini 임베딩 모델로 벡터를 계산하고 채워 넣는다 (V2 시드 데이터 대응).
+ * 로컬 ONNX 임베딩 모델로 벡터를 계산하고 채워 넣는다 (V2 시드 데이터 대응).
  *
- * GEMINI_API_KEY가 설정되지 않은 로컬 환경(예: 최초 클론 직후, CI)에서는
- * 조용히 건너뛴다 - RAG 근거자료는 있을 뿐 나머지 기능(질문/답변/채점)은
- * 정상 동작해야 하므로, 여기서 예외를 던져 앱 기동을 막지 않는다.
+ * 2026-10-01부터 임베딩은 외부 API(Gemini) 호출 없이 애플리케이션 안에서 직접 계산되므로
+ * (spring-ai-starter-model-transformers, all-MiniLM-L6-v2) API 키 유무를 확인할 필요가 없다 -
+ * 앱이 정상 기동됐다면 embeddingModel은 항상 사용 가능하다.
  */
 @Slf4j
 @Component
@@ -28,9 +28,6 @@ public class ReferenceDocumentEmbeddingRunner implements ApplicationRunner {
     private final ReferenceDocumentRepository referenceDocumentRepository;
     private final EmbeddingModel embeddingModel;
 
-    @Value("${spring.ai.google.genai.api-key:}")
-    private String geminiApiKey;
-
     @Value("${interviewstack.ai.mock-mode:false}")
     private boolean mockMode;
 
@@ -38,10 +35,6 @@ public class ReferenceDocumentEmbeddingRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         if (mockMode) {
             log.info("AI_MOCK_MODE 활성화 - reference_documents 임베딩 계산을 건너뜁니다 (RAG 근거자료는 항상 빈 목록으로 응답).");
-            return;
-        }
-        if (geminiApiKey == null || geminiApiKey.isBlank()) {
-            log.info("GEMINI_API_KEY가 설정되지 않아 reference_documents 임베딩 계산을 건너뜁니다.");
             return;
         }
 
@@ -58,9 +51,6 @@ public class ReferenceDocumentEmbeddingRunner implements ApplicationRunner {
                 referenceDocumentRepository.updateEmbedding(doc.getId(), EmbeddingFormatter.toVectorLiteral(embedding));
                 success++;
             } catch (Exception e) {
-                // GradingService와 달리, 여기서 던져지는 com.google.genai.errors.ClientException은
-                // 래핑 없이 그 자체가 실제 원인(예: "402 . Your prepayment credits are depleted...")을
-                // getMessage()에 담고 있으므로, 전체 스택 트레이스 대신 한 줄만 남겨도 원인 파악에 충분하다.
                 log.warn("reference_documents(id={}) 임베딩 계산 실패: {}", doc.getId(), e.getMessage());
             }
         }
