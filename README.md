@@ -36,7 +36,8 @@ docker compose up -d
 
 # 2. 백엔드 실행 (Java 21)
 cd backend
-export GEMINI_API_KEY=발급받은-Gemini-API-키   # 답변 첨삭(LLM 채점)·RAG 근거자료 검색에 필요
+export GROQ_API_KEY=발급받은-Groq-API-키        # 답변 첨삭(LLM 채점)에 필요 — console.groq.com, 카드 등록 불필요
+export GEMINI_API_KEY=발급받은-Gemini-API-키   # RAG 근거자료 검색(임베딩)에 필요
 ./gradlew bootRun
 
 # 3. 프론트 실행
@@ -45,12 +46,17 @@ npm install
 npm run dev
 ```
 
-> **GEMINI_API_KEY 없이 실행하면?** 서버는 정상 기동되고 회원가입/로그인/질문 목록 조회는 그대로 동작하지만,
+> **왜 채점은 Groq, 임베딩은 Gemini?** 2026-10-01부터 LLM 채점(`GradingService`)만 [Groq](https://console.groq.com)로
+> 옮겼다 — 카드 등록 없이 가입 가능하고 무료 한도(분당 30회/일 1,000회)가 넉넉해서, Gemini 결제/쿼터(402) 문제의
+> 영향을 안 받는다. RAG 근거자료 검색에 쓰는 임베딩 모델은 Groq가 제공하지 않아 계속 Gemini를 쓴다.
+>
+> **GROQ_API_KEY 없이 실행하면?** 서버는 정상 기동되고 회원가입/로그인/질문 목록 조회는 그대로 동작하지만,
 > 답변 제출(`POST /api/questions/{id}/answers`) 시 LLM 채점이 실패해 502(`GRADING_FAILED`)가 반환된다.
-> RAG 근거자료 검색은 실패해도 빈 배열로 안전하게 대체되어 채점 자체를 막지 않는다.
+>
+> **GEMINI_API_KEY 없이 실행하면?** RAG 근거자료 검색은 실패해도 빈 배열로 안전하게 대체되어 채점 자체를 막지 않는다.
 
-> **Gemini API 없이(또는 결제/쿼터 문제로) 앱 흐름만 테스트하려면**: `AI_MOCK_MODE=true`로 백엔드를 띄우면
-> 실제 Gemini 호출 없이 미리 정해둔 가짜 채점 결과를 돌려준다(비용 발생 없음). RAG 근거자료는 항상 빈 목록으로
+> **Groq/Gemini 없이(또는 쿼터 문제로) 앱 흐름만 테스트하려면**: `AI_MOCK_MODE=true`로 백엔드를 띄우면
+> 실제 Groq/Gemini 호출 없이 미리 정해둔 가짜 채점 결과를 돌려준다(비용 발생 없음). RAG 근거자료는 항상 빈 목록으로
 > 응답한다. 응답의 `summary`가 `[모의 채점 모드]`로 시작하므로 실제 첨삭과 혼동되지 않는다.
 > ```bash
 > export AI_MOCK_MODE=true

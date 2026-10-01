@@ -18,8 +18,12 @@ import java.util.Set;
  * ChatClient#entity()로 구조화 출력을 받으므로 프롬프트 자체에 JSON 형식 지시문을
  * 넣지 않는다(Spring AI의 BeanOutputConverter가 스키마 지시문을 자동으로 덧붙인다).
  *
- * 프롬프트 문서의 "Gemini는 JSON 파싱 실패율이 GPT 대비 높다"는 리스크 메모에 따라
- * 최대 2회까지 재시도한다.
+ * 채점 모델은 2026-10-01부터 Gemini에서 Groq(OpenAI 호환 엔드포인트, application.yml의
+ * spring.ai.openai.* 설정)로 옮겼다 — Gemini 결제/쿼터(402) 문제 회피 목적. ChatClient.Builder를
+ * 통해서만 접근하므로 이 클래스 코드는 공급자가 바뀌어도 변경이 필요 없다.
+ *
+ * 원래 "Gemini는 JSON 파싱 실패율이 GPT 대비 높다"는 리스크 메모에서 비롯된 재시도 로직이지만,
+ * 구조화 출력 파싱은 어떤 모델이든 가끔 실패할 수 있어 공급자가 바뀐 지금도 최대 2회 재시도를 유지한다.
  */
 @Slf4j
 @Service
