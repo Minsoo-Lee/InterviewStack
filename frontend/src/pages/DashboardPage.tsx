@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { apiClient } from '../api/client';
 import type { DashboardSummary } from '../types';
 
@@ -43,7 +44,9 @@ export function DashboardPage() {
             <h2>오답노트</h2>
             <ul>
               {summary.wrongAnswerNotes.map((note) => (
-                <li key={note.answer.id}>{note.feedback.summary}</li>
+                <li key={note.answer.id}>
+                  <Link to={`/answers/${note.answer.id}/feedback`}>{note.feedback.summary}</Link>
+                </li>
               ))}
             </ul>
           </section>
