@@ -38,7 +38,10 @@ spring:
       base-url: https://api.groq.com/openai/v1
       chat:
         options:
-          model: ${GROQ_MODEL:llama-3.3-70b-versatile}
+          # llama-3.3-70b-versatile는 Groq가 2026-08-16부로 무료/개발자 티어에서 완전히 종료함
+          # (6/17 종료 공지 → 8/16 셧다운). Groq 공식 권장 대체 모델은 openai/gpt-oss-120b
+          # (프로덕션 등급) 또는 qwen/qwen3.6-27b(프리뷰, 프로덕션 비권장) — 전자로 교체.
+          model: ${GROQ_MODEL:openai/gpt-oss-120b}
 
 server:
   port: 8080
